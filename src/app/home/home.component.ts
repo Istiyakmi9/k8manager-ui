@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
 declare var $: any;
@@ -9,8 +10,16 @@ declare var $: any;
 })
 export class HomeComponent implements OnInit, AfterViewChecked {
   allPipeLine: Array<Pipeline> = [];
+  isLoading: boolean = false;
+  folderDiscovery: FolderDiscover = {
+    Files: [],
+    Folders: [],
+    RootDirectory: ""
+  };
+  baseUrl: string = "http://localhost:5200/api/";
+  currentPath: string = "";
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   ngAfterViewChecked(): void {
     $('[data-bs-toggle="tooltip"]').tooltip({
@@ -72,6 +81,41 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       UpdatedOn: new Date(),
       RunTime: new Date().getTime().toString()
     }]
+    this.loadData(this.folderDiscovery.RootDirectory);
+  }
+
+  loadData(directory: string) {
+    this.isLoading = true;
+    this.http.post(this.baseUrl + "FolderDiscovery/GetFolder", {TargetDirectory: directory}).subscribe((res: any) => {
+      if (res) {
+        this.folderDiscovery = res;
+        if (this.currentPath === "")
+          this.currentPath = this.folderDiscovery.RootDirectory;
+
+        this.isLoading = false;
+      }
+    }, (err) => {
+      this.isLoading = false;
+      alert(err.message);
+    })
+  }
+
+  viewFolder(item: string) {
+    if (item) {
+      this.currentPath = item;
+      this.loadData(item);
+    }
+  }
+
+  backToFolder() {
+    let parts = this.currentPath.split('\\');
+
+    // Remove the last two items
+    parts.splice(-1);
+
+    // Join the remaining parts back into a string
+    this.currentPath = parts.join('\\');
+    this.loadData(this.currentPath);
   }
 
 }
@@ -91,4 +135,10 @@ enum Status {
   Failed= 2,
   Running = 3,
   Warning = 4
+}
+
+interface FolderDiscover {
+  Folders: Array<string>,
+  Files: Array<any>,
+  RootDirectory: string
 }

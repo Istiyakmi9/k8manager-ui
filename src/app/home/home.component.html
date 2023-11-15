@@ -1,5 +1,105 @@
 <div class="container-fluid">
-  <table class="table">
+  <ng-container *ngIf="!isLoading">
+    <div class="card p-4 shadow mt-4">
+      <div class="col-md-12 d-flex align-items-center justify-content-between">
+        <span *ngIf="currentPath != null" class="fw-bold text-dark fs-5">
+          <i class="fa fa-folder"></i>
+          {{currentPath}}
+        </span>
+        <div class="col-auto">
+          <button class="btn btn-outline-primary" (click)="backToFolder()" [disabled]="currentPath === folderDiscovery.RootDirectory || folderDiscovery.RootDirectory == ''">
+            <i class="fa fa-arrow-left pe-2"></i>
+            Back
+          </button>
+          <button class="btn btn-outline-danger ms-3" (click)="loadData(folderDiscovery.RootDirectory)">
+            <i class="fa fa-repeat pe-2"></i>
+            Reset
+          </button>
+        </div>
+      </div>
+      <table class="table mt-3">
+        <thead>
+          <tr>
+            <th>Folder Name</th>
+            <th width="10%">
+              Action
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+            <ng-container *ngIf="folderDiscovery.Folders.length > 0">
+              <tr *ngFor="let item of folderDiscovery.Folders">
+                <td>
+                  <a href="javascript:void(0)" (click)="viewFolder(item)">
+                    <i class="fa fa-folder pe-1"></i>
+                    {{item}}
+                  </a>
+                </td>
+                <td>
+                  <a href="javascript:void(0)" class="text-decoratio-none" (click)="viewFolder(item)">
+                    <i class="fa fa-folder-open" data-bs-toggle="tooltip" data-bs-placement="right" title="Open folder"></i>
+                  </a>
+                </td>
+              </tr>
+          </ng-container>
+          <ng-container *ngIf="folderDiscovery.Folders.length == 0">
+            <tr>
+              <td colspan="2" class="text-center fw-bold text-dark fs-5">No folder present</td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+    <div class="card p-4 shadow mt-4">
+      <table class="table">
+        <thead>
+          <tr>
+            <th >File Name</th>
+            <th width="10%">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="folderDiscovery.Files.length > 0">
+            <tr *ngFor="let item of folderDiscovery.Files">
+              <td>
+                <i class="fa fa-file-code-o pe-1" aria-hidden="true"></i>
+                {{item.FileName}}
+              </td>
+              <td>
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Run">
+                    <i class="fa fa-play"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="View Code">
+                    <i class="fa fa-cloud-download"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Re-Run">
+                    <i class="fa fa-repeat"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="Stop">
+                    <i class="fa fa-close"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+          <ng-container *ngIf="folderDiscovery.Files.length == 0">
+            <tr>
+              <td colspan="2" class="text-center fw-bold text-dark fs-5">No file present</td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="isLoading">
+    <div class="d-flex align-items-center justify-content-center vh-100 bg-success p-2  bg-opacity-10">
+      <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  </ng-container>
+  <!-- <table class="table">
     <thead>
       <tr>
         <th >Status</th>
@@ -74,5 +174,5 @@
         </td>
       </tr>
     </tbody>
-  </table>
+  </table> -->
 </div>
