@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
 declare var $: any;
+import { environment } from 'src/env/environment';
 
 @Component({
   selector: 'app-home',
@@ -9,17 +10,22 @@ declare var $: any;
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, AfterViewChecked {
-  allPipeLine: Array<Pipeline> = [];
   isLoading: boolean = false;
   folderDiscovery: FolderDiscover = {
     Files: [],
     Folders: [],
     RootDirectory: ""
   };
-  baseUrl: string = "http://localhost:5200/api/";
+  baseUrl: string = environment.baseUrl
   currentPath: string = "";
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    if (environment.production) {
+      console.log(`[Bottomhalf]: Service.Manager Running on ${environment.env}`);
+    } else {
+      console.log("[Bottomhalf]: Service.Manager Running on localhost");
+    }
+  }
 
   ngAfterViewChecked(): void {
     $('[data-bs-toggle="tooltip"]').tooltip({
@@ -31,56 +37,15 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     });
   }
 
+  checkServiceStatus() {
+    this.http.post(this.baseUrl + "Action/CheckStatus", { Command: "" }).subscribe(res => {
+      if (res) {
+        console.log(res);
+      }
+    });
+  }
+
   ngOnInit(): void {
-    this.allPipeLine = [{
-      Status: Status.Running,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3, 4, 3, 2, 1, 4, 4, 4],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Failed,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Passed,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Running,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Running,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Warning,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }]
     this.loadData(this.folderDiscovery.RootDirectory);
   }
 
