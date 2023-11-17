@@ -2,6 +2,7 @@ import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
 import { AjaxService } from '../services/ajax.service';
 declare var $: any;
+import { environment } from 'src/env/environment';
 
 @Component({
   selector: 'app-home',
@@ -15,9 +16,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     Folders: [],
     RootDirectory: ""
   };
+  baseUrl: string = environment.baseUrl
   currentPath: string = "";
 
-  constructor(private http: AjaxService) {}
+  constructor(private http: AjaxService) { }
 
   ngAfterViewChecked(): void {
     $('[data-bs-toggle="tooltip"]').tooltip({
@@ -26,6 +28,14 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
     $('[data-bs-toggle="tooltip"]').on('click', function () {
       $(this).tooltip('dispose');
+    });
+  }
+
+  checkServiceStatus() {
+    this.http.post(this.baseUrl + "Action/CheckStatus", { Command: "" }).subscribe(res => {
+      if (res) {
+        console.log(res);
+      }
     });
   }
 
