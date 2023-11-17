@@ -2,7 +2,6 @@ import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
 import { AjaxService } from '../services/ajax.service';
 declare var $: any;
-import { environment } from 'src/env/environment';
 
 @Component({
   selector: 'app-home',
@@ -16,8 +15,9 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     Folders: [],
     RootDirectory: ""
   };
-  baseUrl: string = environment.baseUrl
   currentPath: string = "";
+  command: string = null;
+  cmdType: boolean = false;
 
   constructor(private http: AjaxService) { }
 
@@ -32,9 +32,9 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   checkServiceStatus() {
-    this.http.post(this.baseUrl + "Action/CheckStatus", { Command: "" }).subscribe(res => {
-      if (res) {
-        console.log(res);
+    this.http.post("Action/CheckStatus", { Command: "" }).subscribe(res => {
+      if (res.ResponseBody) {
+        console.log(res.ResponseBody);
       }
     });
   }
@@ -46,8 +46,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   loadData(directory: string) {
     this.isLoading = true;
     this.http.post("FolderDiscovery/GetFolder", {TargetDirectory: directory}).subscribe((res: any) => {
-      if (res) {
-        this.folderDiscovery = res;
+      if (res.ResponseBody) {
+        this.folderDiscovery = res.ResponseBody;
         if (this.currentPath === "")
           this.currentPath = this.folderDiscovery.RootDirectory;
 
@@ -80,7 +80,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   runFile(fileDetail: any) {
     this.isLoading = true;
     this.http.post("Action/RunFile", fileDetail).subscribe((res: any) => {
-      if (res) {
+      if (res.ResponseBody) {
         this.isLoading = false;
       }
     }, (err) => {
@@ -92,7 +92,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   reRunFile(fileDetail: any) {
     this.isLoading = true;
     this.http.post("Action/ReRunFile", fileDetail).subscribe((res: any) => {
-      if (res) {
+      if (res.ResponseBody) {
         this.isLoading = false;
       }
     }, (err) => {
@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   stopFile(fileDetail: any) {
     this.isLoading = true;
     this.http.post("Action/StopFile", fileDetail).subscribe((res: any) => {
-      if (res) {
+      if (res.ResponseBody) {
         this.isLoading = false;
       }
     }, (err) => {
@@ -115,14 +115,34 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   checkStatus(fileDetail: any) {
     this.isLoading = true;
-    this.http.post("Action/CheckStatus", fileDetail).subscribe((res: string) => {
-      if (res) {
+    this.http.post("Action/CheckStatus", fileDetail).subscribe((res: any) => {
+      if (res.ResponseBody) {
         this.isLoading = false;
       }
     }, (err) => {
       this.isLoading = false;
 
     })
+  }
+
+  runCommand() {
+    if (this.command) {
+      this.isLoading = true;
+      let value = {
+        Command: this.command,
+        isWindow: this.cmdType,
+        isMicroK8: false
+      }
+      this.http.post("FolderDiscovery/RunCommand", value).subscribe((res: any) => {
+        if (res.ResponseBody) {
+          alert(res.ResponseBody);
+          this.isLoading = false;
+        }
+      }, (err) => {
+        this.isLoading = false;
+        console.log(err)
+      })
+    }
   }
 
 }
