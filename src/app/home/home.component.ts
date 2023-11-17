@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
+import { AjaxService } from '../services/ajax.service';
 declare var $: any;
 
 @Component({
@@ -9,17 +9,15 @@ declare var $: any;
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, AfterViewChecked {
-  allPipeLine: Array<Pipeline> = [];
   isLoading: boolean = false;
   folderDiscovery: FolderDiscover = {
     Files: [],
     Folders: [],
     RootDirectory: ""
   };
-  baseUrl: string = "http://localhost:5200/api/";
   currentPath: string = "";
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: AjaxService) {}
 
   ngAfterViewChecked(): void {
     $('[data-bs-toggle="tooltip"]').tooltip({
@@ -32,61 +30,12 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.allPipeLine = [{
-      Status: Status.Running,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3, 4, 3, 2, 1, 4, 4, 4],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Failed,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Passed,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Running,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Running,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }, {
-      Status: Status.Warning,
-      PipelineId: "#123456789",
-      Trigger: "Developer",
-      Commit: "Message",
-      Stages: [1, 1, 1, 2, 2, 1, 1, 3],
-      UpdatedOn: new Date(),
-      RunTime: new Date().getTime().toString()
-    }]
     this.loadData(this.folderDiscovery.RootDirectory);
   }
 
   loadData(directory: string) {
     this.isLoading = true;
-    this.http.post(this.baseUrl + "FolderDiscovery/GetFolder", {TargetDirectory: directory}).subscribe((res: any) => {
+    this.http.post("FolderDiscovery/GetFolder", {TargetDirectory: directory}).subscribe((res: any) => {
       if (res) {
         this.folderDiscovery = res;
         if (this.currentPath === "")
@@ -118,17 +67,56 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.loadData(this.currentPath);
   }
 
+  runFile(fileDetail: any) {
+    this.isLoading = true;
+    this.http.post("Action/RunFile", fileDetail).subscribe((res: any) => {
+      if (res) {
+        this.isLoading = false;
+      }
+    }, (err) => {
+      this.isLoading = false;
+
+    })
+  }
+
+  reRunFile(fileDetail: any) {
+    this.isLoading = true;
+    this.http.post("Action/ReRunFile", fileDetail).subscribe((res: any) => {
+      if (res) {
+        this.isLoading = false;
+      }
+    }, (err) => {
+      this.isLoading = false;
+
+    })
+  }
+
+  stopFile(fileDetail: any) {
+    this.isLoading = true;
+    this.http.post("Action/StopFile", fileDetail).subscribe((res: any) => {
+      if (res) {
+        this.isLoading = false;
+      }
+    }, (err) => {
+      this.isLoading = false;
+
+    })
+  }
+
+  checkStatus(fileDetail: any) {
+    this.isLoading = true;
+    this.http.post("Action/CheckStatus", fileDetail).subscribe((res: string) => {
+      if (res) {
+        this.isLoading = false;
+      }
+    }, (err) => {
+      this.isLoading = false;
+
+    })
+  }
+
 }
 
-interface Pipeline {
-  Status : number,
-  PipelineId: string,
-  Trigger: string,
-  Commit: string,
-  Stages: Array<number>,
-  UpdatedOn: Date,
-  RunTime: string
-}
 
 enum Status {
   Passed= 1,
