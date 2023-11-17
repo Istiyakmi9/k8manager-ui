@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   checkServiceStatus() {
-    this.http.post("Action/CheckStatus", { Command: "" }).subscribe(res => {
+    this.http.post("Action/CheckStatus", { Command: "test" }).subscribe(res => {
       if (res.ResponseBody) {
         console.log(res.ResponseBody);
       }
@@ -115,6 +115,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   checkStatus(fileDetail: any) {
     this.isLoading = true;
+    fileDetail.Command = "test"
     this.http.post("Action/CheckStatus", fileDetail).subscribe((res: any) => {
       if (res.ResponseBody) {
         this.isLoading = false;
@@ -137,8 +138,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       this.http.post("FolderDiscovery/RunCommand", value).subscribe((res: any) => {
         if (res.ResponseBody) {
           alert(res.ResponseBody);
-          this.isLoading = false;
         }
+        this.isLoading = false;
       }, (err) => {
         this.isLoading = false;
         console.log(err)
