@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/env/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,11 @@ export class AjaxService {
 
   constructor(private http: HttpClient) {
     this.baseUrl = environment.baseUrl;
+    if (environment.production) {
+      console.log(`[Bottomhalf]: BiPortal Running on ${environment.env}`);
+    } else {
+      console.log("[Bottomhalf]: BiPortal Running on localhost");
+    }
   }
 
   get(url: string) {
