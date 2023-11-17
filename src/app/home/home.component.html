@@ -6,21 +6,27 @@
           <i class="fa fa-folder"></i>
           {{folderDiscovery.FolderName}}
         </span>
-        <div class="col-md-4 d-flex align-items-center justify-content-end">
-          <div class="col-md-7">
+        <div class="col-md-6 d-flex align-items-center justify-content-end">
+          <div class="col-md-6">
             <input type="text" class="form-control" placeholder="Enter command" [(ngModel)]="command">
           </div>
-          <div class="col-md-3 d-flex ms-2">
+          <div class="col-md-4 d-flex ms-2">
             <div class="form-check col-auto">
-              <input class="form-check-input" type="radio" [value]="true" name="flexRadioDefault" selected id="flexRadioDefault1" [(ngModel)]="cmdType">
+              <input class="form-check-input" type="radio" value="window" name="flexRadioDefault" selected id="flexRadioDefault1" [(ngModel)]="cmdType">
               <label class="form-check-label" for="flexRadioDefault1">
                 Window
               </label>
             </div>
             <div class="form-check col-auto ms-2">
-              <input class="form-check-input" type="radio" [value]="false" name="flexRadioDefault" id="flexRadioDefault2" checked [(ngModel)]="cmdType">
+              <input class="form-check-input" type="radio" value="linux" name="flexRadioDefault" id="flexRadioDefault2" checked [(ngModel)]="cmdType">
               <label class="form-check-label" for="flexRadioDefault2">
                 Linux
+              </label>
+            </div>
+            <div class="form-check col-auto ms-2">
+              <input class="form-check-input" type="radio" value="mickrok8" name="flexRadioDefault" id="flexRadioDefault2" checked [(ngModel)]="cmdType">
+              <label class="form-check-label" for="flexRadioDefault2">
+                MicroK8
               </label>
             </div>
           </div>
