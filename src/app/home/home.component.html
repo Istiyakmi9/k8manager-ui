@@ -67,16 +67,16 @@
               </td>
               <td>
                 <div class="btn-group" role="group" aria-label="Basic outlined example">
-                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Run">
+                  <button type="button" (click)="runFile(item)" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Run">
                     <i class="fa fa-play"></i>
                   </button>
                   <button type="button" class="btn btn-outline-secondary" (click)="checkServiceStatus()" data-bs-toggle="tooltip" data-bs-placement="right" title="Check latest status">
                     <i class="fa fa-cloud-download"></i>
                   </button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Re-Run">
+                  <button type="button" (click)="reRunFile(item)" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Re-Run">
                     <i class="fa fa-repeat"></i>
                   </button>
-                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="Stop">
+                  <button type="button" (click)="stopFile(item)" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="Stop">
                     <i class="fa fa-close"></i>
                   </button>
                 </div>
