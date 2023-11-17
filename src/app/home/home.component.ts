@@ -17,7 +17,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   };
   currentPath: string = "";
   command: string = null;
-  cmdType: boolean = false;
+  cmdType: string = "linux";
 
   constructor(private http: AjaxService) { }
 
@@ -130,8 +130,9 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       this.isLoading = true;
       let value = {
         Command: this.command,
-        isWindow: this.cmdType,
-        isMicroK8: false
+        isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
+        isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
+        isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
       }
       this.http.post("FolderDiscovery/RunCommand", value).subscribe((res: any) => {
         if (res.ResponseBody) {
