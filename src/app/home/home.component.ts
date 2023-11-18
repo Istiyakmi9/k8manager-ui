@@ -78,15 +78,17 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   runFile(fileDetail: any) {
-    this.isLoading = true;
-    this.http.post("Action/RunFile", fileDetail).subscribe((res: any) => {
-      if (res.ResponseBody) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.http.post("Action/RunFile", fileDetail).subscribe((res: any) => {
+        if (res.ResponseBody) {
+          this.isLoading = false;
+        }
+      }, (err) => {
         this.isLoading = false;
-      }
-    }, (err) => {
-      this.isLoading = false;
 
-    })
+      })
+    }
   }
 
   reRunFile(fileDetail: any) {
@@ -126,7 +128,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     })
   }
 
-  runCommand() {
+  runCustomCommand() {
     if (this.command) {
       this.isLoading = true;
       let value = {
@@ -134,6 +136,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
         isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
         isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
         isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
+        FilePath: ""
       }
       this.http.post("FolderDiscovery/RunCommand", value).subscribe((res: any) => {
         if (res.ResponseBody) {

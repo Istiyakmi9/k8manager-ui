@@ -31,7 +31,7 @@
             </div>
           </div>
           <div class="col-auto">
-            <button class="btn btn-outline-success ms-2" (click)="runCommand()">Run Cmd</button>
+            <button class="btn btn-outline-success ms-2" (click)="runCustomCommand()">Run Cmd</button>
           </div>
         </div>
         <!-- <div class="col-auto">
@@ -48,18 +48,26 @@
       <table class="table">
         <thead>
           <tr>
-            <th >File Name</th>
+            <th width="15%">File Name</th>
+            <th>Status</th>
             <th width="10%">Action</th>
           </tr>
         </thead>
         <tbody>
           <ng-container *ngIf="folderDiscovery.Files != null && folderDiscovery.Files.length > 0">
             <tr *ngFor="let item of folderDiscovery.Files">
-              <td>
-                <i class="fa fa-file-code-o pe-1" aria-hidden="true"></i>
-                {{item.FileName}}
+              <td class="align-middle">
+                <span class="badge text-bg-primary fw-normal fs-6">
+                  <i class="fa fa-file-code-o pe-1" aria-hidden="true"></i>
+                  {{item.FileName}}
+                </span>
               </td>
-              <td>
+              <td class="align-middle">
+                <span class="badge text-bg-danger fw-normal fs-6">
+                  Stopped
+                </span>
+              </td>
+              <td class="align-middle">
                 <div class="btn-group" role="group" aria-label="Basic outlined example">
                   <button type="button" (click)="runFile(item)" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Run">
                     <i class="fa fa-play"></i>
