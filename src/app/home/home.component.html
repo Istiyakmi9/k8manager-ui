@@ -57,7 +57,7 @@
             </div>
           </div>
         </div>
-  
+
         <!-- Center Panel -->
         <div class="col-md-6 px-5 py-4">
           <div class="center-panel">
@@ -70,7 +70,7 @@
                 <button class="btn btn-primary">Learn More</button>
               </div>
             </div>
-  
+
             <div class="card mb-3">
               <div class="card-body">
                 <h5 class="card-title">
@@ -118,15 +118,29 @@
                         <div class="my-2">
                           {{folder.FullPath}}
                         </div>
-                        <div class="my-2">
-                          <ng-container>
-                            <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
-                            <span class="ps-2 text-success">Running</span>
-                          </ng-container>
-                          <ng-container>
-                            <i class="fa-solid fa-stop text-danger"></i>
-                            <span class="ps-2 text-danger">Stopped</span>
-                          </ng-container>
+                        <div class="my-2 row justify-content-end">
+                          <div class="col-auto border-end">
+                            <p class="mb-0">Service Status</p>
+                            <ng-container *ngIf="folder.ServiceStatus">
+                              <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
+                              <span class="ps-2 text-success">Running</span>
+                            </ng-container>
+                            <ng-container *ngIf="!folder.ServiceStatus">
+                              <i class="fa-solid fa-stop text-danger"></i>
+                              <span class="ps-2 text-danger">Stopped</span>
+                            </ng-container>
+                          </div>
+                          <div class="col-auto">
+                            <p class="mb-0">Pod Status</p>
+                            <ng-container *ngIf="folder.PodStatus">
+                              <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
+                              <span class="ps-2 text-success">Running</span>
+                            </ng-container>
+                            <ng-container *ngIf="!folder.PodStatus">
+                              <i class="fa-solid fa-stop text-danger"></i>
+                              <span class="ps-2 text-danger">Stopped</span>
+                            </ng-container>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -135,11 +149,11 @@
                 <button class="btn btn-primary">Explore</button>
               </div>
             </div>
-  
+
             <!-- Add more cards as needed -->
           </div>
         </div>
-  
+
         <!-- Right Panel -->
         <div class="col-md-3">
           <div class="right-panel">
