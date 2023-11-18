@@ -1,6 +1,7 @@
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
 import { AjaxService } from '../services/ajax.service';
+import { Subject, interval, switchMap, takeUntil } from 'rxjs';
 declare var $: any;
 
 @Component({
@@ -22,6 +23,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   fileDetail: Array<any> = [];
   allFolders: Array<any> = [];
   selectedFolder: any = null;
+  private destroy$ = new Subject<void>();
 
   constructor(private http: AjaxService) { }
 
@@ -47,9 +49,65 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.loadData(this.folderDiscovery.RootDirectory);
   }
 
+  runFile(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/RunFile"); 
+    }
+  }
+
+  runAndRetryForStatus(fileDetail: any, url: string): void {
+    const timer$ = interval(2000); // Adjust the interval as needed
+    let counter = 0;
+    let i = 1;
+
+    timer$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.http.post(url, {
+          FullPath: fileDetail.FullPath,
+          FileName: fileDetail.FileName,
+          PVSize: `${i++}`
+        }))
+      )
+      .subscribe((res: any) => {
+        if (res && res.HttpStatusCode == 200) {
+          let detail = res.ResponseBody;
+          console.log('Received data:', detail.FileName);
+
+          let currentFile = this.fileDetail.find(x => x.FileName == detail.FileName);
+          currentFile.Status = detail.Status;
+          this.isLoading = false;
+        }
+
+        // Check if it's the 5th request, then stop the timer
+        counter++;
+        if (counter === 5 || res.HttpStatusCode == 200) {
+          this.stopTimer();
+        }
+      },
+        (error) => {
+          console.error('Error fetching data:', error);
+          this.isLoading = false;
+          this.stopTimer();
+        }
+      );
+  }
+
+  private stopTimer(): void {
+    console.log('Stopping timer.');
+    this.destroy$.next();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+
   loadData(directory: string) {
     this.isLoading = true;
-    this.isReady = false; 
+    this.isReady = false;
     this.http.post("FolderDiscovery/GetAllFolder", { TargetDirectory: directory }).subscribe((res: any) => {
       if (res.ResponseBody) {
         this.folderDiscovery = res.ResponseBody;
@@ -57,7 +115,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
         if (this.currentPath === "")
           this.currentPath = this.folderDiscovery.RootDirectory;
       }
-      
+
       this.isLoading = false;
       this.isReady = true;
     }, (err) => {
@@ -104,21 +162,6 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.loadData(this.currentPath);
   }
 
-  runFile(fileDetail: any) {
-    if (fileDetail) {
-      this.isLoading = true;
-      this.http.post("Action/RunFile", fileDetail).subscribe((res: any) => {
-        if (res.ResponseBody) {
-          alert(res.ResponseBody);
-          this.isLoading = false;
-        }
-      }, (err) => {
-        this.isLoading = false;
-        console.log(err);
-      })
-    }
-  }
-
   reRunFile(fileDetail: any) {
     this.isLoading = true;
     this.http.post("Action/ReRunFile", fileDetail).subscribe((res: any) => {
@@ -162,21 +205,14 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   runCustomCommand() {
     if (this.command) {
       this.isLoading = true;
-      // let value = {
-      //   Command: this.command,
-      //   isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
-      //   isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
-      //   isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
-      //   FilePath: ""
-      // }
-
       let value = {
-        Command: "",
+        Command: this.command,
         isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
         isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
         isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
         FilePath: ""
       }
+
       this.http.post("FolderDiscovery/RunCommand", value).subscribe((res: any) => {
         if (res.ResponseBody) {
           alert(res.ResponseBody);
