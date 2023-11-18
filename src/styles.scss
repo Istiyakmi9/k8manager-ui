@@ -1,1 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
+
+select:focus,
+a:focus,
+input:focus {
+  outline: none !important;
+  border-color: 1px solid #d9d9d9 !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+select,
+a,
+label,
+input,
+button,
+textarea {
+  outline: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+}

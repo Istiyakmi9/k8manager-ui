@@ -1,180 +1,181 @@
-<div class="container-fluid">
-  <ng-container *ngIf="!isLoading">
-    <div class="card p-4 shadow mt-4">
-      <div class="col-md-12 d-flex align-items-center justify-content-between mb-3">
-        <span *ngIf="currentPath != null" class="fw-bold text-dark fs-5">
-          <i class="fa fa-folder"></i>
-          {{folderDiscovery.FolderName}}
-        </span>
-        <div class="col-md-6 d-flex align-items-center justify-content-end">
-          <div class="col-md-6">
-            <input type="text" class="form-control" placeholder="Enter command" [(ngModel)]="command">
-          </div>
-          <div class="col-md-4 d-flex ms-2">
-            <div class="form-check col-auto">
-              <input class="form-check-input" type="radio" value="window" name="flexRadioDefault" selected id="flexRadioDefault1" [(ngModel)]="cmdType">
-              <label class="form-check-label" for="flexRadioDefault1">
-                Window
-              </label>
+<div>
+  <header class="bg-light text-white text-center py-3">
+    <div class="container d-flex justify-content-between">
+      <div>
+        <span class="company-name text-dark">Your Company</span>
+        <button class="btn btn-dark ml-3" id="hamburger-menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      <div class="user-info">
+        <span class="mr-3 text-dark">User Name</span>
+        <i class="far fa-bell"></i>
+      </div>
+    </div>
+  </header>
+  <ng-contianer *ngIf="!isLoading">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Left Panel -->
+        <div class="col-md-3">
+          <div class="left-panel position-fixed">
+            <div class="container-fluid">
+              <div class="row flex-nowrap">
+                <div class="col-auto col-md-12 col-xl-12 px-sm-12 px-0 border-end vh-100">
+                  <ng-container *ngIf="isReady">
+                    <div
+                      class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
+                      <a href="/"
+                        class="d-flex align-items-center pb-1 mb-md-0 me-md-auto text-decoration-none">
+                        <span class="fs-5 d-none d-sm-inline fw-bold text-dark">Your Projects</span>
+                      </a>
+                      <div class="input-group my-2">
+                        <div class="input-group-text" id="btnGroupAddon">
+                          <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+                        <input type="text" class="form-control" placeholder="Fina a folder....." (keyup)="searchFolder($event)" (keydown.esc)="resetSearch($event)">
+                      </div>
+                      <ul class="nav nav-pills mt-1 flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
+                        id="menu">
+                        <li class="nav-item" *ngFor="let folder of folderDiscovery.Folders">
+                          <a href="javascript:void(0)" class="nav-link py-1 align-middle px-0 text-muted" (click)="getFileList(folder)" >
+                            <i class="fa-solid fa-folder"></i>
+                            <span class="ms-1 d-none d-sm-inline">
+                              {{folder.FolderName}}
+                            </span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                    <h6 class="mt-3 px-3">Recent activity</h6>
+                    <div class="mx-3 border rounded p-2 mt-2">
+                      <small>When you take actions, we’ll provide links to that activity here.</small>
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
             </div>
-            <div class="form-check col-auto ms-2">
-              <input class="form-check-input" type="radio" value="linux" name="flexRadioDefault" id="flexRadioDefault2" checked [(ngModel)]="cmdType">
-              <label class="form-check-label" for="flexRadioDefault2">
-                Linux
-              </label>
-            </div>
-            <div class="form-check col-auto ms-2">
-              <input class="form-check-input" type="radio" value="mickrok8" name="flexRadioDefault" id="flexRadioDefault2" checked [(ngModel)]="cmdType">
-              <label class="form-check-label" for="flexRadioDefault2">
-                MicroK8
-              </label>
-            </div>
-          </div>
-          <div class="col-auto">
-            <button class="btn btn-outline-success ms-2" (click)="runCustomCommand()">Run Cmd</button>
           </div>
         </div>
-        <!-- <div class="col-auto">
-          <button class="btn btn-outline-primary" (click)="backToFolder()" [disabled]="currentPath === folderDiscovery.RootDirectory || folderDiscovery.RootDirectory == ''">
-            <i class="fa fa-arrow-left pe-2"></i>
-            Back
-          </button>
-          <button class="btn btn-outline-danger ms-3" (click)="loadData(folderDiscovery.RootDirectory)">
-            <i class="fa fa-repeat pe-2"></i>
-            Reset
-          </button> -->
-        <!-- </div> -->
-      </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th width="15%">File Name</th>
-            <th>Status</th>
-            <th width="10%">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngIf="folderDiscovery.Files != null && folderDiscovery.Files.length > 0">
-            <tr *ngFor="let item of folderDiscovery.Files">
-              <td class="align-middle">
-                <span class="badge text-bg-primary fw-normal fs-6">
-                  <i class="fa fa-file-code-o pe-1" aria-hidden="true"></i>
-                  {{item.FileName}}
-                </span>
-              </td>
-              <td class="align-middle">
-                <span class="badge text-bg-danger fw-normal fs-6">
-                  Stopped
-                </span>
-              </td>
-              <td class="align-middle">
-                <div class="btn-group" role="group" aria-label="Basic outlined example">
-                  <button type="button" (click)="runFile(item)" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Run">
-                    <i class="fa fa-play"></i>
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary" (click)="checkServiceStatus()" data-bs-toggle="tooltip" data-bs-placement="right" title="Check latest status">
-                    <i class="fa fa-cloud-download"></i>
-                  </button>
-                  <button type="button" (click)="reRunFile(item)" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Re-Run">
-                    <i class="fa fa-repeat"></i>
-                  </button>
-                  <button type="button" (click)="stopFile(item)" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="Stop">
-                    <i class="fa fa-close"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </ng-container>
-          <ng-container *ngIf="folderDiscovery.Files != null && folderDiscovery.Files.length == 0">
-            <tr>
-              <td colspan="2" class="text-center fw-bold text-dark fs-5">No file present</td>
-            </tr>
-          </ng-container>
-        </tbody>
-      </table>
-    </div>
-  </ng-container>
-  <ng-container *ngIf="isLoading">
-    <div class="d-flex align-items-center justify-content-center vh-100 bg-success p-2  bg-opacity-10">
-      <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-    </div>
-  </ng-container>
-  <!-- <table class="table">
-    <thead>
-      <tr>
-        <th >Status</th>
-        <th>Pipeline</th>
-        <th>Trigger</th>
-        <th>Commit</th>
-        <th>Stages</th>
-        <th></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of allPipeLine">
-        <td>
-          <span *ngIf="item.Status == 1" class="border border-success text-success rounded px-2 py-1">
-            <i class="fa fa-check-circle-o pe-1"></i>
-            passed
-          </span>
-          <span *ngIf="item.Status == 2" class="border border-danger text-danger rounded px-2 py-1">
-            <i class="fa fa-times-circle-o pe-1"></i>
-            failed
-          </span>
-          <span *ngIf="item.Status == 3" class="border border-primary text-primary rounded px-2 py-1">
-            <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
-            running
-          </span>
-          <span *ngIf="item.Status == 4" class="border border-warning text-warning rounded px-2 py-1">
-            <i class="fa fa-exclamation-circle pe-1"></i>
-            passed
-          </span>
-        </td>
-        <td>
-          {{item.PipelineId}}
-        </td>
-        <td>
-          {{item.Trigger}}
-        </td>
-        <td>
-          {{item.Commit}}
-        </td>
-        <td>
-          <i class="fa fa-angle-double-right pe-1" aria-hidden="true"></i>
-          <ng-container *ngFor="let stage of item.Stages">
-            <i class="fa fa-lg fw-normal fa-check-circle-o px-1 text-success" *ngIf="stage == 1"></i>
-            <i class="fa fa-lg fw-normal fa-times-circle-o px-1 text-danger" *ngIf="stage == 2"></i>
-            <i class="fa fa-lg fw-normal fa-circle-o-notch fa-spin fa-fw px-1 text-primary" *ngIf="stage == 3"></i>
-            <i class="fa fa-lg fw-normal fa-exclamation-circle text-warning px-1" *ngIf="stage == 4"></i>
-          </ng-container>
-          <i class="fa fa-angle-double-right ps-1" aria-hidden="true"></i>
-        </td>
-        <td class="text-muted text-end">
-          <i class="fa fa-clock-o"></i> {{item.RunTime}}
-          <p class="mb-0">
-            <i class="fa fa-calendar"></i> {{item.UpdatedOn | date}}
-          </p>
-        </td>
-        <td>
-          <div class="btn-group" role="group" aria-label="Basic outlined example">
-            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Run">
-              <i class="fa fa-play"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="View Code">
-              <i class="fa fa-cloud-download"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="right" title="Re-Run">
-              <i class="fa fa-repeat"></i>
-            </button>
-            <button type="button" class="btn btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="right" title="Stop">
-              <i class="fa fa-close"></i>
-            </button>
+  
+        <!-- Center Panel -->
+        <div class="col-md-6 px-5 py-4">
+          <div class="center-panel">
+            <!-- Card List with Information -->
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Welcome to Your Company</h5>
+                <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin eget justo nec neque
+                  ultricies sodales.</p>
+                <button class="btn btn-primary">Learn More</button>
+              </div>
+            </div>
+  
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="fa-solid fa-folder pe-1" *ngIf="selectedFolder != null"></i>
+                  {{selectedFolder == null ? 'New Features' : selectedFolder}} </h5>
+                <p class="card-text">Check out our latest features and improvements.</p>
+                <ng-container *ngIf="fileDetail.length > 0">
+                  <div
+                    class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
+                    <a href="/"
+                      class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-decoration-none">
+                      <span class="fs-5 d-none d-sm-inline">Menu</span>
+                    </a>
+                    <div class="mb-3 w-100" id="menu">
+                      <div class="card mb-3 p-3" *ngFor="let folder of fileDetail">
+                        <div class="d-flex justify-content-between">
+                          <div>
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span class="px-2 text-muted">File history</span>
+                            <a href="javascript:void(0)">View more</a>
+                          </div>
+                          <div>
+                            <i class="fa-solid fa-ellipsis"></i>
+                          </div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mt-2">
+                          <a href="javascript:void(0)" class="px-0 text-decoration-none text-dark fw-semibold" (click)="getFileList(folder)">
+                            <i class="fa-regular fa-file-code"></i>
+                            <span class="ms-1 d-none d-sm-inline">
+                              {{folder.FileName}}
+                            </span>
+                          </a>
+                          <div class="btn-group" role="group" aria-label="First group">
+                            <button type="button" class="btn btn-sm btn-outline-success" (click)="runFile(folder)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Run">
+                              <i class="fa-solid fa-play"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" (click)="stopFile(folder)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stop">
+                              <i class="fa-solid fa-stop"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="checkStatus(folder)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Check Status">
+                              <i class="fa-solid fa-arrow-rotate-right"></i>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="my-2">
+                          {{folder.FullPath}}
+                        </div>
+                        <div class="my-2">
+                          <ng-container>
+                            <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
+                            <span class="ps-2 text-success">Running</span>
+                          </ng-container>
+                          <ng-container>
+                            <i class="fa-solid fa-stop text-danger"></i>
+                            <span class="ps-2 text-danger">Stopped</span>
+                          </ng-container>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+                <button class="btn btn-primary">Explore</button>
+              </div>
+            </div>
+  
+            <!-- Add more cards as needed -->
           </div>
-        </td>
-      </tr>
-    </tbody>
-  </table> -->
+        </div>
+  
+        <!-- Right Panel -->
+        <div class="col-md-3">
+          <div class="right-panel">
+            <div class="shortcuts mb-4">
+              <h5>Quick Links</h5>
+              <a href="#">Documentation</a>
+              <a href="#">Support</a>
+              <a href="#">Contact Us</a>
+            </div>
+            <div class="recent-pages mb-4">
+              <h5>Recent Pages</h5>
+              <ul>
+                <li><a href="#">Dashboard</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="#">Profile</a></li>
+              </ul>
+            </div>
+            <div class="additional-content">
+              <h5>Additional Content</h5>
+              <p>Explore more about our products and services.</p>
+              <button class="btn btn-primary">Learn More</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-contianer>
+  <ng-contianer *ngIf="isLoading">
+    <div class="py-5 my-5 d-flex align-items-center justify-content-center loader-container">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </ng-contianer>
+
+  <footer class="text-center mt-5">
+    <p>&copy; 2023 Your Company</p>
+  </footer>
 </div>

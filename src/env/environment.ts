@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   env: "local",
-  baseUrl: "http://localhost:5002/api/",
+  // baseUrl: "http://localhost:5002/api/",
+  baseUrl: "http://192.168.0.101:5000/api/",
   FolderDelimiter: "\\"
 };
 

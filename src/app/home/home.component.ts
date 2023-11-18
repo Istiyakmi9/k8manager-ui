@@ -10,6 +10,7 @@ declare var $: any;
 })
 export class HomeComponent implements OnInit, AfterViewChecked {
   isLoading: boolean = false;
+  isReady: boolean = false;
   folderDiscovery: FolderDiscover = {
     Files: [],
     Folders: [],
@@ -18,6 +19,9 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   currentPath: string = "";
   command: string = null;
   cmdType: string = "linux";
+  fileDetail: Array<any> = [];
+  allFolders: Array<any> = [];
+  selectedFolder: any = null;
 
   constructor(private http: AjaxService) { }
 
@@ -45,18 +49,41 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   loadData(directory: string) {
     this.isLoading = true;
-    this.http.post("FolderDiscovery/GetFolder", {TargetDirectory: directory}).subscribe((res: any) => {
+    this.isReady = false; 
+    this.http.post("FolderDiscovery/GetAllFolder", { TargetDirectory: directory }).subscribe((res: any) => {
       if (res.ResponseBody) {
         this.folderDiscovery = res.ResponseBody;
+        this.allFolders = res.ResponseBody.Folders
         if (this.currentPath === "")
           this.currentPath = this.folderDiscovery.RootDirectory;
-
-        this.isLoading = false;
       }
+      
+      this.isLoading = false;
+      this.isReady = true;
     }, (err) => {
       this.isLoading = false;
+      this.isReady = true;
       alert(err.message);
     })
+  }
+
+  getFileList(folder: any) {
+    if (folder && folder.FullPath != "") {
+      this.isLoading = true;
+      this.http.post("FolderDiscovery/GetAllFile", { TargetDirectory: folder.FullPath })
+        .subscribe((res: any) => {
+          if (res.ResponseBody) {
+            this.selectedFolder = folder.FolderName;
+            this.fileDetail = res.ResponseBody;
+            this.isLoading = false;
+          }
+        }, (err) => {
+          this.isLoading = false;
+          alert(err.message);
+        })
+    } else {
+
+    }
   }
 
   viewFolder(item: string) {
@@ -82,11 +109,12 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       this.isLoading = true;
       this.http.post("Action/RunFile", fileDetail).subscribe((res: any) => {
         if (res.ResponseBody) {
+          alert(res.ResponseBody);
           this.isLoading = false;
         }
       }, (err) => {
         this.isLoading = false;
-
+        console.log(err);
       })
     }
   }
@@ -95,11 +123,12 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.isLoading = true;
     this.http.post("Action/ReRunFile", fileDetail).subscribe((res: any) => {
       if (res.ResponseBody) {
+        alert(res.ResponseBody);
         this.isLoading = false;
       }
     }, (err) => {
       this.isLoading = false;
-
+      console.log(err);
     })
   }
 
@@ -107,11 +136,12 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.isLoading = true;
     this.http.post("Action/StopFile", fileDetail).subscribe((res: any) => {
       if (res.ResponseBody) {
+        alert(res.ResponseBody);
         this.isLoading = false;
       }
     }, (err) => {
       this.isLoading = false;
-
+      console.log(err);
     })
   }
 
@@ -120,19 +150,28 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     fileDetail.Command = "test"
     this.http.post("Action/CheckStatus", fileDetail).subscribe((res: any) => {
       if (res.ResponseBody) {
+        alert(res.ResponseBody);
         this.isLoading = false;
       }
     }, (err) => {
       this.isLoading = false;
-
+      console.log(err);
     })
   }
 
   runCustomCommand() {
     if (this.command) {
       this.isLoading = true;
+      // let value = {
+      //   Command: this.command,
+      //   isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
+      //   isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
+      //   isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
+      //   FilePath: ""
+      // }
+
       let value = {
-        Command: this.command,
+        Command: "",
         isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
         isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
         isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
@@ -150,12 +189,26 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  searchFolder(e: any) {
+    let value = e.target.value;
+    if (value && value != "") {
+      this.folderDiscovery.Folders = this.allFolders.filter(x => x.FolderName.includes(value));
+    } else {
+      this.folderDiscovery.Folders = this.allFolders;
+    }
+  }
+
+  resetSearch(e: any) {
+    e.target.value = "";
+    this.folderDiscovery.Folders = this.allFolders;
+  }
+
 }
 
 
 enum Status {
-  Passed= 1,
-  Failed= 2,
+  Passed = 1,
+  Failed = 2,
   Running = 3,
   Warning = 4
 }
