@@ -45,8 +45,25 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  ngOnInit(): void {
-    this.loadData(this.folderDiscovery.RootDirectory);
+  reRunFile(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/ReRunFile"); 
+    }
+  }
+
+  stopFile(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/StopFile"); 
+    }
+  }
+
+  checkStatus(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/CheckStatus"); 
+    }
   }
 
   runFile(fileDetail: any) {
@@ -57,7 +74,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   runAndRetryForStatus(fileDetail: any, url: string): void {
-    const timer$ = interval(2000); // Adjust the interval as needed
+    const timer$ = interval(5000); // Adjust the interval as needed
     let counter = 0;
     let i = 1;
 
@@ -82,12 +99,12 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
         // Check if it's the 5th request, then stop the timer
         counter++;
-        if (counter === 5 || res.HttpStatusCode == 200) {
+        if (counter === 12 || res.HttpStatusCode == 200) {
           this.stopTimer();
         }
       },
         (error) => {
-          console.error('Error fetching data:', error);
+          console.error('Error...');
           this.isLoading = false;
           this.stopTimer();
         }
@@ -104,6 +121,9 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.destroy$.complete();
   }
 
+  ngOnInit(): void {
+    this.loadData(this.folderDiscovery.RootDirectory);
+  }
 
   loadData(directory: string) {
     this.isLoading = true;
@@ -160,46 +180,6 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     // Join the remaining parts back into a string
     this.currentPath = parts.join('\\');
     this.loadData(this.currentPath);
-  }
-
-  reRunFile(fileDetail: any) {
-    this.isLoading = true;
-    this.http.post("Action/ReRunFile", fileDetail).subscribe((res: any) => {
-      if (res.ResponseBody) {
-        alert(res.ResponseBody);
-        this.isLoading = false;
-      }
-    }, (err) => {
-      this.isLoading = false;
-      console.log(err);
-    })
-  }
-
-  stopFile(fileDetail: any) {
-    this.isLoading = true;
-    this.http.post("Action/StopFile", fileDetail).subscribe((res: any) => {
-      if (res.ResponseBody) {
-        alert(res.ResponseBody);
-        this.isLoading = false;
-      }
-    }, (err) => {
-      this.isLoading = false;
-      console.log(err);
-    })
-  }
-
-  checkStatus(fileDetail: any) {
-    this.isLoading = true;
-    fileDetail.Command = "test"
-    this.http.post("Action/CheckStatus", fileDetail).subscribe((res: any) => {
-      if (res.ResponseBody) {
-        alert(res.ResponseBody);
-        this.isLoading = false;
-      }
-    }, (err) => {
-      this.isLoading = false;
-      console.log(err);
-    })
   }
 
   runCustomCommand() {
