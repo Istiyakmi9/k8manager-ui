@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   loadData(directory: string) {
     this.isLoading = true;
-    this.isReady = false; 
+    this.isReady = false;
     this.http.post("FolderDiscovery/GetAllFolder", { TargetDirectory: directory }).subscribe((res: any) => {
       if (res.ResponseBody) {
         this.folderDiscovery = res.ResponseBody;
@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
         if (this.currentPath === "")
           this.currentPath = this.folderDiscovery.RootDirectory;
       }
-      
+
       this.isLoading = false;
       this.isReady = true;
     }, (err) => {
@@ -75,7 +75,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
           if (res.ResponseBody) {
             this.selectedFolder = folder.FolderName;
             this.fileDetail = res.ResponseBody;
-            this.isLoading = false;
+            this.isLoading = true;
           }
         }, (err) => {
           this.isLoading = false;
