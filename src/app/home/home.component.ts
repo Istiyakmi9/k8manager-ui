@@ -2,6 +2,7 @@ import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
 import { AjaxService } from '../services/ajax.service';
 import { Subject, interval, switchMap, takeUntil } from 'rxjs';
+import { Router } from '@angular/router';
 declare var $: any;
 
 @Component({
@@ -25,7 +26,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   selectedFolder: any = null;
   private destroy$ = new Subject<void>();
 
-  constructor(private http: AjaxService) { }
+  constructor(
+    private http: AjaxService,
+    private router: Router
+    ) { }
 
   ngAfterViewChecked(): void {
     $('[data-bs-toggle="tooltip"]').tooltip({
@@ -219,6 +223,9 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.folderDiscovery.Folders = this.allFolders;
   }
 
+  loadFileEditor() {
+    this.router.navigateByUrl("editor");
+  }
 }
 
 
