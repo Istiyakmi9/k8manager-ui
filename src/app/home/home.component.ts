@@ -52,33 +52,33 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   reRunFile(fileDetail: any) {
     if (fileDetail) {
       this.isLoading = true;
-      this.runAndRetryForStatus(fileDetail, "Action/ReRunFile"); 
+      this.runAndRetryForStatus(fileDetail, "Action/ReRunFile");
     }
   }
 
   stopFile(fileDetail: any) {
     if (fileDetail) {
       this.isLoading = true;
-      this.runAndRetryForStatus(fileDetail, "Action/StopFile"); 
+      this.runAndRetryForStatus(fileDetail, "Action/StopFile");
     }
   }
 
   checkStatus(fileDetail: any) {
     if (fileDetail) {
       this.isLoading = true;
-      this.runAndRetryForStatus(fileDetail, "Action/CheckStatus"); 
+      this.runAndRetryForStatus(fileDetail, "Action/CheckStatus");
     }
   }
 
   runFile(fileDetail: any) {
     if (fileDetail) {
       this.isLoading = true;
-      this.runAndRetryForStatus(fileDetail, "Action/RunFile"); 
+      this.runAndRetryForStatus(fileDetail, "Action/RunFile");
     }
   }
 
   runAndRetryForStatus(fileDetail: any, url: string): void {
-    const timer$ = interval(5000); // Adjust the interval as needed
+    const timer$ = interval(1000); // Adjust the interval as needed
     let counter = 0;
     let i = 1;
 
