@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { HTTP_INTERCEPTORS, HttpClientModule } from  '@angular/common/http'
 import { FormsModule } from '@angular/forms';
+import { EditorComponent } from './editor/editor.component';
 import { LoaderComponent } from './loader/loader.component';
 import { AppInterceptor } from './auth/app.interceptor';
 
@@ -13,7 +14,8 @@ import { AppInterceptor } from './auth/app.interceptor';
   declarations: [
     AppComponent,
     HomeComponent,
-    LoaderComponent
+    LoaderComponent,
+    EditorComponent
   ],
   imports: [
     BrowserModule,
