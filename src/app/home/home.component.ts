@@ -1,6 +1,7 @@
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
 import 'bootstrap';
 import { AjaxService } from '../services/ajax.service';
+import { Subject, interval, switchMap, takeUntil } from 'rxjs';
 declare var $: any;
 
 @Component({
@@ -22,6 +23,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   fileDetail: Array<any> = [];
   allFolders: Array<any> = [];
   selectedFolder: any = null;
+  private destroy$ = new Subject<void>();
 
   constructor(private http: AjaxService) { }
 
@@ -41,6 +43,82 @@ export class HomeComponent implements OnInit, AfterViewChecked {
         console.log(res.ResponseBody);
       }
     });
+  }
+
+  reRunFile(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/ReRunFile");
+    }
+  }
+
+  stopFile(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/StopFile");
+    }
+  }
+
+  checkStatus(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/CheckStatus");
+    }
+  }
+
+  runFile(fileDetail: any) {
+    if (fileDetail) {
+      this.isLoading = true;
+      this.runAndRetryForStatus(fileDetail, "Action/RunFile");
+    }
+  }
+
+  runAndRetryForStatus(fileDetail: any, url: string): void {
+    const timer$ = interval(1000); // Adjust the interval as needed
+    let counter = 0;
+    let i = 1;
+
+    timer$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.http.post(url, {
+          FullPath: fileDetail.FullPath,
+          FileName: fileDetail.FileName,
+          PVSize: `${i++}`
+        }))
+      )
+      .subscribe((res: any) => {
+        if (res && res.HttpStatusCode == 200) {
+          let detail = res.ResponseBody;
+          console.log('Received data:', detail.FileName);
+
+          let currentFile = this.fileDetail.find(x => x.FileName == detail.FileName);
+          currentFile.Status = detail.Status;
+          this.isLoading = false;
+        }
+
+        // Check if it's the 5th request, then stop the timer
+        counter++;
+        if (counter === 12 || res.HttpStatusCode == 200) {
+          this.stopTimer();
+        }
+      },
+        (error) => {
+          console.error('Error...');
+          this.isLoading = false;
+          this.stopTimer();
+        }
+      );
+  }
+
+  private stopTimer(): void {
+    console.log('Stopping timer.');
+    this.destroy$.next();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit(): void {
@@ -75,7 +153,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
           if (res.ResponseBody) {
             this.selectedFolder = folder.FolderName;
             this.fileDetail = res.ResponseBody;
-            this.isLoading = true;
+            this.isLoading = false;
           }
         }, (err) => {
           this.isLoading = false;
@@ -104,79 +182,17 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.loadData(this.currentPath);
   }
 
-  runFile(fileDetail: any) {
-    if (fileDetail) {
-      this.isLoading = true;
-      this.http.post("Action/RunFile", fileDetail).subscribe((res: any) => {
-        if (res.ResponseBody) {
-          alert(res.ResponseBody);
-          this.isLoading = false;
-        }
-      }, (err) => {
-        this.isLoading = false;
-        console.log(err);
-      })
-    }
-  }
-
-  reRunFile(fileDetail: any) {
-    this.isLoading = true;
-    this.http.post("Action/ReRunFile", fileDetail).subscribe((res: any) => {
-      if (res.ResponseBody) {
-        alert(res.ResponseBody);
-        this.isLoading = false;
-      }
-    }, (err) => {
-      this.isLoading = false;
-      console.log(err);
-    })
-  }
-
-  stopFile(fileDetail: any) {
-    this.isLoading = true;
-    this.http.post("Action/StopFile", fileDetail).subscribe((res: any) => {
-      if (res.ResponseBody) {
-        alert(res.ResponseBody);
-        this.isLoading = false;
-      }
-    }, (err) => {
-      this.isLoading = false;
-      console.log(err);
-    })
-  }
-
-  checkStatus(fileDetail: any) {
-    this.isLoading = true;
-    fileDetail.Command = "test"
-    this.http.post("Action/CheckStatus", fileDetail).subscribe((res: any) => {
-      if (res.ResponseBody) {
-        alert(res.ResponseBody);
-        this.isLoading = false;
-      }
-    }, (err) => {
-      this.isLoading = false;
-      console.log(err);
-    })
-  }
-
   runCustomCommand() {
     if (this.command) {
       this.isLoading = true;
-      // let value = {
-      //   Command: this.command,
-      //   isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
-      //   isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
-      //   isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
-      //   FilePath: ""
-      // }
-
       let value = {
-        Command: "",
+        Command: this.command,
         isWindow: this.cmdType.toLowerCase() === "window" ? true : false,
         isMicroK8: this.cmdType.toLowerCase() === "mickrok8" ? true : false,
         isLinux: this.cmdType.toLowerCase() === "linux" ? true : false,
         FilePath: ""
       }
+
       this.http.post("FolderDiscovery/RunCommand", value).subscribe((res: any) => {
         if (res.ResponseBody) {
           alert(res.ResponseBody);
