@@ -93,7 +93,7 @@
                       id="menu">
                       <li class="nav-item" *ngFor="let folder of folderDiscovery.Folders">
                         <a href="javascript:void(0)" class="nav-link py-1 align-middle px-0 text-muted"
-                          (click)="getFileList(folder)">
+                          (click)="getFileList(folder.FullPath, folder.FolderName)">
                           <i class="fa-solid fa-folder"></i>
                           <span class="ms-1 d-none d-sm-inline">
                             {{folder.FolderName}}
@@ -132,8 +132,9 @@
             <div class="card-body">
               <ng-container *ngIf="selectedFolder != null">
                 <h5 class="card-title">
-                  <i class="fa-solid fa-folder pe-1" *ngIf="selectedFolder != null"></i>
-                  {{selectedFolder}}
+                  <i class="fa-solid fa-folder pe-1"></i>
+                  {{selectedFolder.FolderName}}
+                  <button class="btn btn-outline-primary" *ngIf="isBackBtnEnable" (click)="backToFolder()">Back</button>
                 </h5>
                 <!-- <p class="card-text">Check out our latest features and improvements.</p> -->
                 <ng-container *ngIf="fileDetail.length > 0">
@@ -142,70 +143,80 @@
                       <span class="fs-5 d-none d-sm-inline">Files</span>
                     </a>
                     <div class="mb-3 w-100" id="menu">
-                      <div class="card mb-3 p-3" *ngFor="let folder of fileDetail">
-                        <div class="d-flex justify-content-between">
-                          <div>
-                            <i class="fa-solid fa-chart-line"></i>
-                            <span class="px-2 text-muted">Edit Yaml File</span>
-                            <a href="javascript:void(0)" (click)="loadFileEditor()">Edit</a>
+                      <div class="card mb-3 p-3" *ngFor="let file of fileDetail">
+                        <ng-container *ngIf="!file.IsFolder">
+                          <div class="d-flex justify-content-between">
+                            <div>
+                              <i class="fa-solid fa-chart-line"></i>
+                              <span class="px-2 text-muted">Edit Yaml File</span>
+                              <a href="javascript:void(0)" (click)="loadFileEditor()">Edit</a>
+                            </div>
+                            <div>
+                              <i class="fa-solid fa-ellipsis"></i>
+                            </div>
                           </div>
-                          <div>
-                            <i class="fa-solid fa-ellipsis"></i>
-                          </div>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between mt-2">
-                          <a href="javascript:void(0)" class="px-0 text-decoration-none text-dark fw-semibold"
-                            (click)="getFileList(folder)">
-                            <i class="fa-regular fa-file-code"></i>
-                            <span class="ms-1 d-none d-sm-inline">
-                              {{folder.FileName}}
-                            </span>
-                          </a>
-                          <div class="btn-group" role="group" aria-label="First group">
-                            <ng-container *ngIf="!folder.Status">
-                              <button type="button" [disabled]="isLoading" class="btn btn-sm btn-outline-success" (click)="runFile(folder)"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Run">
+                          <div class="d-flex align-items-center justify-content-between mt-2">
+                            <a href="javascript:void(0)" class="px-0 text-decoration-none text-dark fw-semibold"
+                              (click)="getFileList(file)">
+                              <i class="fa-regular fa-file-code"></i>
+                              <span class="ms-1 d-none d-sm-inline">
+                                {{file.FileName}}
+                              </span>
+                            </a>
+                            <div class="btn-group" role="group" aria-label="First group">
+                              <ng-container *ngIf="!file.Status">
+                                <button type="button" [disabled]="isLoading" class="btn btn-sm btn-outline-success" (click)="runFile(file)"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Run">
+                                  <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
+                                  <i class="fa-solid fa-play" *ngIf="!isLoading"></i>
+                                </button>
+                              </ng-container>
+                              <ng-container *ngIf="file.Status">
+                                <button type="button" [disabled]="isLoading" class="btn btn-sm btn-outline-danger" (click)="stopFile(file)"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stop">
+                                  <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
+                                  <i class="fa-solid fa-stop" *ngIf="!isLoading"></i>
+                                </button>
+                              </ng-container>
+                              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="checkStatus(file)"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Check Status">
                                 <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
-                                <i class="fa-solid fa-play" *ngIf="!isLoading"></i>
+                                <i class="fa-solid fa-arrow-rotate-right" *ngIf="!isLoading"></i>
                               </button>
-                            </ng-container>
-                            <ng-container *ngIf="folder.Status">
-                              <button type="button" [disabled]="isLoading" class="btn btn-sm btn-outline-danger" (click)="stopFile(folder)"
-                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stop">
-                                <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
-                                <i class="fa-solid fa-stop" *ngIf="!isLoading"></i>
-                              </button>
-                            </ng-container>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="checkStatus(folder)"
-                              data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Check Status">
-                              <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
-                              <i class="fa-solid fa-arrow-rotate-right" *ngIf="!isLoading"></i>
-                            </button>
+                            </div>
                           </div>
-                        </div>
-                        <div class="my-2">
-                          {{folder.FullPath}}
-                        </div>
-                        <div class="mb-2 mt-1 row justify-content-between">
-                          <div class="col-auto d-flex align-items-center">
-                            <span>Status</span>
-                            <span class="mx-2">|</span>
-                            <ng-container *ngIf="folder.Status">
-                              <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
-                              <span class="ps-2 text-success">Running</span>
-                            </ng-container>
-                            <ng-container *ngIf="!folder.Status">
-                              <i class="fa-solid fa-stop text-danger"></i>
-                              <span class="ps-2 text-danger">Stopped</span>
-                            </ng-container>
+                          <div class="my-2">
+                            {{file.FullPath}}
                           </div>
-                          <div class="col-auto d-flex align-items-center">
-                            <span>Type</span>
-                            <span class="mx-2">|</span>
-                            <i class="fa-solid fa-font-awesome"></i>
-                            <span class="ps-2 text-dark fw-semibold">{{folder.FileType}}</span>
+                          <div class="mb-2 mt-1 row justify-content-between">
+                            <div class="col-auto d-flex align-items-center">
+                              <span>Status</span>
+                              <span class="mx-2">|</span>
+                              <ng-container *ngIf="file.Status">
+                                <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
+                                <span class="ps-2 text-success">Running</span>
+                              </ng-container>
+                              <ng-container *ngIf="!file.Status">
+                                <i class="fa-solid fa-stop text-danger"></i>
+                                <span class="ps-2 text-danger">Stopped</span>
+                              </ng-container>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                              <span>Type</span>
+                              <span class="mx-2">|</span>
+                              <i class="fa-solid fa-font-awesome"></i>
+                              <span class="ps-2 text-dark fw-semibold">{{file.FileType}}</span>
+                            </div>
                           </div>
-                        </div>
+                        </ng-container>
+                        <ng-container *ngIf="file.IsFolder">
+                          <div>
+                            <i class="fa-solid fa-folder pe-2"></i>
+                            <a href="javascript:void(0)" class="text-decoration-none" (click)="getFileList(file.FullPath, file.FileName)">
+                              {{file.FileName}}
+                            </a>
+                          </div>
+                        </ng-container>
                       </div>
                     </div>
                   </div>

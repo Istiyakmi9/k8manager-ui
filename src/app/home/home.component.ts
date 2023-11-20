@@ -25,6 +25,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   allFolders: Array<any> = [];
   selectedFolder: any = null;
   private destroy$ = new Subject<void>();
+  isBackBtnEnable: boolean = false;
 
   constructor(
     private http: AjaxService,
@@ -149,13 +150,21 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     })
   }
 
-  getFileList(folder: any) {
-    if (folder && folder.FullPath != "") {
+  getFileList(FullPath: string, FolderName: string) {
+    if (FullPath && FullPath != "" && FolderName && FolderName != "") {
       this.isLoading = true;
-      this.http.post("FolderDiscovery/GetAllFile", { TargetDirectory: folder.FullPath })
+      this.http.post("FolderDiscovery/GetAllFile", { TargetDirectory: FullPath })
         .subscribe((res: any) => {
           if (res.ResponseBody) {
-            this.selectedFolder = folder.FolderName;
+            this.selectedFolder = {
+              FolderName: FolderName,
+              FullPath: FullPath
+            }
+            if (!this.folderDiscovery.Folders.find(x => x.FolderName == FolderName)) {
+              this.isBackBtnEnable = true;
+            } else
+              this.isBackBtnEnable = false;
+              
             this.fileDetail = res.ResponseBody;
             this.isLoading = false;
           }
@@ -176,14 +185,24 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   backToFolder() {
-    let parts = this.currentPath.split('\\');
-
-    // Remove the last two items
-    parts.splice(-1);
-
-    // Join the remaining parts back into a string
-    this.currentPath = parts.join('\\');
-    this.loadData(this.currentPath);
+    let currentPath;
+    let folder;
+    if (this.selectedFolder.FullPath.includes("/")) {
+      let parts = this.selectedFolder.FullPath.split('/');
+  
+      // Remove the last two items
+      parts.splice(-1);
+  
+      // Join the remaining parts back into a string
+      currentPath = parts.join('/');
+      folder = parts.slice(-1)[0];
+    } else {
+      let parts = this.selectedFolder.FullPath.split('\\');
+      parts.splice(-1);
+      currentPath = parts.join("\\");
+    }
+    console.log(currentPath);
+    this.getFileList(currentPath, folder);
   }
 
   runCustomCommand() {
@@ -237,7 +256,7 @@ enum Status {
 }
 
 interface FolderDiscover {
-  Folders: Array<string>,
+  Folders: Array<any>,
   Files: Array<any>,
   RootDirectory: string
 }

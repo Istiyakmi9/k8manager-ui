@@ -44,27 +44,7 @@ export class EditorComponent implements OnInit, AfterContentChecked, OnDestroy {
       this.isBinded = true;
     }
   }
-
-  // keyUpEvent(e: any) {
-  //   const numberOfLines = e.target.value.split('\n').length
-
-  //   this.lineNumbers.innerHTML = Array(numberOfLines)
-  //     .fill('<span></span>')
-  //     .join('')
-  // }
-
-  // editorKeyUpEvent(event: any) {
-  //   if (event.key === 'Tab') {
-  //     const start = this.textarea.selectionStart
-  //     const end = this.textarea.selectionEnd
-
-  //     this.textarea.value = this.textarea.value.substring(0, start) + '\t' + this.textarea.value.substring(end)
-  //     this.textarea.focus()
-
-  //     event.preventDefault()
-  //   }
-  // }
-
+  
   ngOnInit(): void {
 
   }
