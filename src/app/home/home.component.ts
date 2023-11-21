@@ -82,7 +82,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     const timer$ = interval(1000); // Adjust the interval as needed
     let counter = 0;
     let i = 1;
-
+    fileDetail.IsLoading = true;
     timer$
       .pipe(
         takeUntil(this.destroy$),
@@ -96,7 +96,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
         if (res && res.HttpStatusCode == 200) {
           let detail = res.ResponseBody;
           console.log('Received data:', detail.FileName);
-
+          fileDetail.IsLoading = false;
           let currentFile = this.fileDetail.find(x => x.FileName == detail.FileName);
           currentFile.Status = detail.Status;
           this.isLoading = false;
@@ -104,13 +104,16 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
         // Check if it's the 5th request, then stop the timer
         counter++;
-        if (counter === 12 || res.HttpStatusCode == 200) {
+        this.stopTimer();
+        if (counter === 1 || res.HttpStatusCode == 200) {
+          fileDetail.IsLoading = false;
           this.stopTimer();
         }
       },
         (error) => {
           console.error('Error...');
           this.isLoading = false;
+          fileDetail.IsLoading = false;
           this.stopTimer();
         }
       );
@@ -164,8 +167,11 @@ export class HomeComponent implements OnInit, AfterViewChecked {
               this.isBackBtnEnable = true;
             } else
               this.isBackBtnEnable = false;
-              
+
             this.fileDetail = res.ResponseBody;
+            this.fileDetail.forEach(x => {
+              x.IsLoading = false;
+            })
             this.isLoading = false;
           }
         }, (err) => {
@@ -189,10 +195,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     let folder;
     if (this.selectedFolder.FullPath.includes("/")) {
       let parts = this.selectedFolder.FullPath.split('/');
-  
+
       // Remove the last two items
       parts.splice(-1);
-  
+
       // Join the remaining parts back into a string
       currentPath = parts.join('/');
       folder = parts.slice(-1)[0];

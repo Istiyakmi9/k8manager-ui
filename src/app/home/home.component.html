@@ -76,7 +76,7 @@
         <div class="left-panel side-menu">
           <div class="container-fluid">
             <div class="row flex-nowrap">
-              <div class="col-auto col-md-12 col-xl-12 px-sm-12 px-0 border-end vh-100">
+              <div class="col-auto col-md-12 col-xl-12 px-sm-12 px-0 border-end">
                 <ng-container *ngIf="isReady">
                   <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
                     <a href="/" class="d-flex align-items-center pb-1 mb-md-0 me-md-auto text-decoration-none">
@@ -166,22 +166,23 @@
                             <div class="btn-group" role="group" aria-label="First group">
                               <ng-container *ngIf="!file.Status">
                                 <button type="button" [disabled]="isLoading" class="btn btn-sm btn-outline-success" (click)="runFile(file)"
-                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Run">
-                                  <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
-                                  <i class="fa-solid fa-play" *ngIf="!isLoading"></i>
+                                  data-bs-toggle="tooltip" data-bs-file.IsLoading="top" data-bs-title="Run">
+                                  <i class="fa-solid fa-play"></i>
                                 </button>
                               </ng-container>
                               <ng-container *ngIf="file.Status">
-                                <button type="button" [disabled]="isLoading" class="btn btn-sm btn-outline-danger" (click)="stopFile(file)"
+                                <button type="button" [disabled]="file.IsLoading" class="btn btn-sm btn-outline-danger" (click)="stopFile(file)"
                                   data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stop">
-                                  <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
-                                  <i class="fa-solid fa-stop" *ngIf="!isLoading"></i>
+                                  <i class="fa-solid fa-stop"></i>
                                 </button>
                               </ng-container>
-                              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="checkStatus(file)"
+                              <button type="button" [disabled]="file.IsLoading" class="btn btn-sm btn-outline-secondary" (click)="checkStatus(file)"
                                 data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Check Status">
-                                <i class="fa-solid fa-spin fa-spinner" *ngIf="isLoading"></i>
-                                <i class="fa-solid fa-arrow-rotate-right" *ngIf="!isLoading"></i>
+                                <i class="fa-solid fa-arrow-rotate-right"></i>
+                              </button>
+                              <button type="button" [disabled]="file.IsLoading" class="btn btn-sm btn-outline-info" (click)="reRunFile(file)"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Re Deploy">
+                                <i class="fa-solid fa-arrows-rotate"></i>
                               </button>
                             </div>
                           </div>
@@ -192,13 +193,25 @@
                             <div class="col-auto d-flex align-items-center">
                               <span>Status</span>
                               <span class="mx-2">|</span>
-                              <ng-container *ngIf="file.Status">
-                                <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
-                                <span class="ps-2 text-success">Running</span>
+                              <ng-container *ngIf="!file.IsLoading">
+                                <ng-container *ngIf="file.Status">
+                                  <i class="fa-solid fa-circle fa-beat-fade" style="color: #3d6b1f;"></i>
+                                  <span class="ps-2 text-success">Running</span>
+                                </ng-container>
+                                <ng-container *ngIf="!file.Status">
+                                  <i class="fa-solid fa-stop text-danger"></i>
+                                  <span class="ps-2 text-danger">Stopped</span>
+                                </ng-container>
                               </ng-container>
-                              <ng-container *ngIf="!file.Status">
-                                <i class="fa-solid fa-stop text-danger"></i>
-                                <span class="ps-2 text-danger">Stopped</span>
+                              <ng-container *ngIf="file.IsLoading">
+                                <ng-container *ngIf="!file.Status">
+                                  <i class="fa-solid fa-spin fa-spinner" style="color: #3d6b1f;"></i>
+                                  <span class="ps-2 text-success">Running</span>
+                                </ng-container>
+                                <ng-container *ngIf="file.Status">
+                                  <i class="fa-solid fa-spin fa-spinner text-danger"></i>
+                                  <span class="ps-2 text-danger">Stopping</span>
+                                </ng-container>
                               </ng-container>
                             </div>
                             <div class="col-auto d-flex align-items-center">
