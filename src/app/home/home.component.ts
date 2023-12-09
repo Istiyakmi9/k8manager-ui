@@ -3,6 +3,7 @@ import 'bootstrap';
 import { AjaxService } from '../services/ajax.service';
 import { Subject, interval, switchMap, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
+import { RouteDatahandler } from '../services/RouteDatahandler';
 declare var $: any;
 
 @Component({
@@ -29,7 +30,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   constructor(
     private http: AjaxService,
-    private router: Router
+    private router: Router,
+    private routeData: RouteDatahandler
     ) { }
 
   ngAfterViewChecked(): void {
@@ -242,7 +244,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.folderDiscovery.Folders = this.allFolders;
   }
 
-  loadFileEditor() {
+  loadFileEditor(file: any) {
+    this.routeData.setData(file);
     this.router.navigateByUrl("editor");
   }
 }
