@@ -9,13 +9,15 @@ import { FormsModule } from '@angular/forms';
 import { EditorComponent } from './editor/editor.component';
 import { LoaderComponent } from './loader/loader.component';
 import { AppInterceptor } from './auth/app.interceptor';
+import { NavbarComponent } from './navbar/navbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     LoaderComponent,
-    EditorComponent
+    EditorComponent,
+    NavbarComponent
   ],
   imports: [
     BrowserModule,
