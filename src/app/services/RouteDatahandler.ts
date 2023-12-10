@@ -21,4 +21,8 @@ export class RouteDatahandler {
 
         return result;
     }
+
+    public removeData() {
+        localStorage.removeItem("routeData");
+    }
 }

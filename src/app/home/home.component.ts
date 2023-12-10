@@ -133,6 +133,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
     this.loadData(this.folderDiscovery.RootDirectory);
+    let data = this.routeData.getData();
+    if (data) {
+      this.getFileList(data.FullPath , data.FolderName);
+    }
   }
 
   loadData(directory: string) {
@@ -174,6 +178,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
             this.fileDetail.forEach(x => {
               x.IsLoading = false;
             })
+            let data = this.routeData.getData();
+            if (data) {
+              this.routeData.removeData();
+            }
             this.isLoading = false;
           }
         }, (err) => {

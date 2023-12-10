@@ -1,7 +1,7 @@
 import { AfterContentChecked, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { AjaxService } from '../services/ajax.service';
 import { RouteDatahandler } from '../services/RouteDatahandler';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-editor',
@@ -13,18 +13,21 @@ export class EditorComponent implements OnInit, AfterContentChecked, OnDestroy {
   textarea: any = null;
   lineNumbers: any = null;
   isBinded: boolean = false;
-  fileDetail: any = null;
+  fileDetail: any = { FileContent: "" };
   isReady: boolean = false;
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private http: AjaxService,
+    private router: Router,
     private routeData: RouteDatahandler
   ) {}
 
   ngOnDestroy(): void {
-    this.textarea.removeEventListener('keyup');
-    this.lineNumbers.removeEventListener('keyup');    
+    if (this.textarea)
+      this.textarea.removeEventListener('keyup');
+
+    if (this.lineNumbers)
+      this.lineNumbers.removeEventListener('keyup');    
   }
 
   ngAfterContentChecked(): void {
@@ -68,22 +71,58 @@ export class EditorComponent implements OnInit, AfterContentChecked, OnDestroy {
     this.isReady = false; 
 
     this.http.post("Editor/getfile", this.fileDetail).subscribe(res => {
-      if (res) {
-        let data = res;
-        if(data && data.FileContent != "") {
-          this.fileDetail.FileContent = data.FileContent;
-          let textarea = document.querySelector('textarea');
-          textarea.innerHTML = this.fileDetail.FileContent;
-          if (this.fileDetail.FileContent) {
-            let totalLine = this.fileDetail.FileContent.split('\n').length;
-            const lineNumbers = document.querySelector('.line-numbers')
-            lineNumbers.innerHTML = Array(totalLine)
-            .fill('<span></span>')
-            .join('')
-          }
-          this.isReady = true;
-        }
-      }
+      this.bindData(res);
     });
+  }
+
+  bindData(res: any) {
+    if (res) {
+      let data = res;
+      if(data && data.FileContent != "") {
+        this.fileDetail.FileContent = data.FileContent;
+        // let textarea = document.getElementById('editor');
+        // textarea.innerHTML = this.fileDetail.FileContent;
+        if (this.fileDetail.FileContent) {
+          let totalLine = this.fileDetail.FileContent.split('\n').length;
+          const lineNumbers = document.querySelector('.line-numbers')
+          lineNumbers.innerHTML = Array(totalLine)
+          .fill('<span></span>')
+          .join('')
+        }
+        this.isReady = true;
+      }
+    }
+  }
+
+  saveChanges() {
+    this.http.post("Editor/updatefile", this.fileDetail).subscribe(res => {
+      this.bindData(res);
+    });
+  }
+
+  backToFolder() {
+    let currentPath;
+    let folder;
+    if (this.fileDetail.FullPath.includes("/")) {
+      let parts = this.fileDetail.FullPath.split('/');
+
+      // Remove the last two items
+      parts.splice(-1);
+
+      // Join the remaining parts back into a string
+      currentPath = parts.join('/');
+      folder = parts.slice(-1)[0];
+    } else {
+      let parts = this.fileDetail.FullPath.split('\\');
+      parts.splice(-1);
+      currentPath = parts.join("\\");
+      folder = parts.slice(-1)[0];
+    }
+    this.routeData.setData({
+      FullPath: currentPath,
+      FolderName: folder
+    })
+    this.router.navigateByUrl("home");
+    //this.getFileList(currentPath, folder);
   }
 }
