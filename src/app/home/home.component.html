@@ -22,7 +22,7 @@
                     <ul class="nav nav-pills mt-1 flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start"
                       id="menu">
                       <li class="nav-item" *ngFor="let folder of gitHubContent">
-                        <a href="javascript:void(0)" class="nav-link py-1 align-middle px-0 text-muted"
+                        <a href="javascript:void(0)" class="nav-link py-1 align-middle px-0 text-muted" [ngClass]="{'pe-none': folder.Type == 'file'}"
                           (click)="getFileList(folder.Path, folder.Name)">
                           <i class="fa-solid fa-folder" *ngIf="folder.Type == 'dir'"></i>
                           <i class="fa-solid fa-file" *ngIf="folder.Type == 'file'"></i>
@@ -65,7 +65,7 @@
                 <h5 class="card-title">
                   <i class="fa-solid fa-folder pe-1"></i>
                   {{selectedFolder.FolderName}}
-                  <button class="btn btn-outline-primary" *ngIf="isBackBtnEnable" (click)="backToFolder()">Back</button>
+                  <button class="btn btn-outline-primary float-end" *ngIf="isBackBtnEnable" (click)="backToFolder()"><i class="fa-solid fa-arrow-left"></i> Back</button>
                 </h5>
                 <!-- <p class="card-text">Check out our latest features and improvements.</p> -->
                 <ng-container *ngIf="fileDetail.length > 0">
@@ -149,7 +149,7 @@
                               <span>Type</span>
                               <span class="mx-2">|</span>
                               <i class="fa-solid fa-font-awesome"></i>
-                              <span class="ps-2 text-dark fw-semibold">{{file.Type}}</span>
+                              <span class="ps-2 text-dark fw-semibold">{{file.FileType}}</span>
                             </div>
                           </div>
                         </ng-container>
