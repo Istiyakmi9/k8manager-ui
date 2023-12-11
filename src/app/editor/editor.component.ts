@@ -103,8 +103,8 @@ export class EditorComponent implements OnInit, AfterContentChecked, OnDestroy {
   backToFolder() {
     let currentPath;
     let folder;
-    if (this.fileDetail.FullPath.includes("/")) {
-      let parts = this.fileDetail.FullPath.split('/');
+    if (this.fileDetail.Path.includes("/")) {
+      let parts = this.fileDetail.Path.split('/');
 
       // Remove the last two items
       parts.splice(-1);
@@ -113,13 +113,13 @@ export class EditorComponent implements OnInit, AfterContentChecked, OnDestroy {
       currentPath = parts.join('/');
       folder = parts.slice(-1)[0];
     } else {
-      let parts = this.fileDetail.FullPath.split('\\');
+      let parts = this.fileDetail.Path.split('\\');
       parts.splice(-1);
       currentPath = parts.join("\\");
       folder = parts.slice(-1)[0];
     }
     this.routeData.setData({
-      FullPath: currentPath,
+      Path: currentPath,
       FolderName: folder
     })
     this.router.navigateByUrl("home");

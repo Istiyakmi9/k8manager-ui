@@ -14,19 +14,11 @@ declare var $: any;
 export class HomeComponent implements OnInit, AfterViewChecked {
   isLoading: boolean = false;
   isReady: boolean = false;
-  gitHubContent: GitHubContent = {
-    Name: "",
-    Url: "",
-    DownloadUrl: "",
-    Type: "",
-    GitUrl: "",
-    Path: ""
-  };
-  currentPath: string = "";
+  gitHubContent: Array<GitHubContent> = [];
   command: string = null;
   cmdType: string = "linux";
   fileDetail: Array<any> = [];
-  allFolders: Array<any> = [];
+  allFolders: Array<GitHubContent> = [];
   selectedFolder: any = null;
   private destroy$ = new Subject<void>();
   isBackBtnEnable: boolean = false;
@@ -135,10 +127,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.loadData(this.gitHubContent.GitUrl);
+    this.loadData("");
     let data = this.routeData.getData();
     if (data) {
-      this.getFileList(data.FullPath , data.FolderName);
+      this.getFileList(data.Path , data.FolderName);
     }
   }
 
@@ -148,9 +140,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.http.post("FolderDiscovery/GetAllFolder", { TargetDirectory: directory }).subscribe((res: any) => {
       if (res.ResponseBody) {
         this.gitHubContent = res.ResponseBody;
-        this.allFolders = res.ResponseBody.Folders
-        if (this.currentPath === "")
-          this.currentPath = this.gitHubContent.GitUrl;
+        this.allFolders = res.ResponseBody;
+        
       }
 
       this.isLoading = false;
@@ -162,15 +153,15 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     })
   }
 
-  getFileList(FullPath: string, FolderName: string) {
-    if (FullPath && FullPath != "" && FolderName && FolderName != "") {
+  getFileList(Path: string, FolderName: string) {
+    if (Path && Path != "" && FolderName && FolderName != "") {
       this.isLoading = true;
-      this.http.post("FolderDiscovery/GetAllFile", { TargetDirectory: FullPath })
+      this.http.post("FolderDiscovery/GetAllFile", { TargetDirectory: Path })
         .subscribe((res: any) => {
           if (res.ResponseBody) {
             this.selectedFolder = {
               FolderName: FolderName,
-              FullPath: FullPath
+              FullPath: Path
             }
             
             this.isBackBtnEnable = false;
@@ -195,7 +186,6 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   viewFolder(item: string) {
     if (item) {
-      this.currentPath = item;
       this.loadData(item);
     }
   }
@@ -203,8 +193,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   backToFolder() {
     let currentPath;
     let folder;
-    if (this.selectedFolder.FullPath.includes("/")) {
-      let parts = this.selectedFolder.FullPath.split('/');
+    if (this.selectedFolder.Path.includes("/")) {
+      let parts = this.selectedFolder.Path.split('/');
 
       // Remove the last two items
       parts.splice(-1);
@@ -213,7 +203,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       currentPath = parts.join('/');
       folder = parts.slice(-1)[0];
     } else {
-      let parts = this.selectedFolder.FullPath.split('\\');
+      let parts = this.selectedFolder.Path.split('\\');
       parts.splice(-1);
       currentPath = parts.join("\\");
     }
@@ -246,10 +236,16 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   searchFolder(e: any) {
     let value = e.target.value;
+    if (value && value != "") {
+      this.gitHubContent = this.allFolders.filter(x => x.Name.toLocaleLowerCase().includes(value.toLocaleLowerCase()));
+    } else {
+      this.gitHubContent = this.allFolders;
+    }
   }
 
   resetSearch(e: any) {
     e.target.value = "";
+    this.gitHubContent = this.allFolders;
   }
 
   loadFileEditor(file: any) {

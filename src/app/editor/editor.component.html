@@ -6,7 +6,7 @@
     <div class="row">
       <div class="col-auto">
         <i class="fa-solid fa-file pe-2"></i>
-        {{fileDetail.FullPath | json}}
+        {{fileDetail.Path | json}}
       </div>
     </div>
   </div>
@@ -14,7 +14,7 @@
     <div class="card-header">
       <div class="d-flex align-items-center justify-content-between">
         <div class="col-auto">
-          <span class="align-middle">{{fileDetail.FileName}} | </span>
+          <span class="align-middle">{{fileDetail.Name}} | </span>
           <span class="align-middle">10 lines</span>
         </div>
         <div class="btn-group" role="group" aria-label="Basic example">

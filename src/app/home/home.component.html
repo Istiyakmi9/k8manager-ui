@@ -24,7 +24,8 @@
                       <li class="nav-item" *ngFor="let folder of gitHubContent">
                         <a href="javascript:void(0)" class="nav-link py-1 align-middle px-0 text-muted"
                           (click)="getFileList(folder.Path, folder.Name)">
-                          <i class="fa-solid fa-folder"></i>
+                          <i class="fa-solid fa-folder" *ngIf="folder.Type == 'dir'"></i>
+                          <i class="fa-solid fa-file" *ngIf="folder.Type == 'file'"></i>
                           <span class="ms-1 d-none d-sm-inline">
                             {{folder.Name}}
                           </span>
@@ -74,7 +75,7 @@
                     </a>
                     <div class="mb-3 w-100" id="menu">
                       <div class="card mb-3 p-3" *ngFor="let file of fileDetail">
-                        <ng-container *ngIf="!file.IsFolder">
+                        <ng-container *ngIf="file.Type == 'file'">
                           <div class="d-flex justify-content-between">
                             <div>
                               <i class="fa-solid fa-chart-line"></i>
@@ -90,7 +91,7 @@
                               (click)="getFileList(file)">
                               <i class="fa-regular fa-file-code"></i>
                               <span class="ms-1 d-none d-sm-inline">
-                                {{file.FileName}}
+                                {{file.Name}}
                               </span>
                             </a>
                             <div class="btn-group" role="group" aria-label="First group">
@@ -117,7 +118,7 @@
                             </div>
                           </div>
                           <div class="my-2">
-                            {{file.FullPath}}
+                            {{file.Path}}
                           </div>
                           <div class="mb-2 mt-1 row justify-content-between">
                             <div class="col-auto d-flex align-items-center">
@@ -148,15 +149,15 @@
                               <span>Type</span>
                               <span class="mx-2">|</span>
                               <i class="fa-solid fa-font-awesome"></i>
-                              <span class="ps-2 text-dark fw-semibold">{{file.FileType}}</span>
+                              <span class="ps-2 text-dark fw-semibold">{{file.Type}}</span>
                             </div>
                           </div>
                         </ng-container>
-                        <ng-container *ngIf="file.IsFolder">
+                        <ng-container *ngIf="file.Type == 'dir'">
                           <div>
                             <i class="fa-solid fa-folder pe-2"></i>
-                            <a href="javascript:void(0)" class="text-decoration-none" (click)="getFileList(file.FullPath, file.FileName)">
-                              {{file.FileName}}
+                            <a href="javascript:void(0)" class="text-decoration-none" (click)="getFileList(file.Path, file.Name)">
+                              {{file.Name}}
                             </a>
                           </div>
                         </ng-container>
