@@ -84,17 +84,20 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       .pipe(
         takeUntil(this.destroy$),
         switchMap(() => this.http.post(url, {
-          FullPath: fileDetail.FullPath,
-          FileName: fileDetail.FileName,
-          PVSize: `${i++}`
+          Name: fileDetail.Name,
+          Url: fileDetail.Url,
+          DownloadUrl: fileDetail.DownloadUrl,
+          Type: fileDetail.Type,
+          GitUrl: fileDetail.GitUrl,
+          Path: fileDetail.Path
         }))
       )
       .subscribe((res: any) => {
         if (res && res.HttpStatusCode == 200) {
           let detail = res.ResponseBody;
-          console.log('Received data:', detail.FileName);
+          console.log('Received data:', detail.Name);
           fileDetail.IsLoading = false;
-          let currentFile = this.fileDetail.find(x => x.FileName == detail.FileName);
+          let currentFile = this.fileDetail.find(x => x.Name == detail.Name);
           currentFile.Status = detail.Status;
           this.isLoading = false;
         }
@@ -141,7 +144,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       if (res.ResponseBody) {
         this.gitHubContent = res.ResponseBody;
         this.allFolders = res.ResponseBody;
-        
+
       }
 
       this.isLoading = false;
@@ -160,15 +163,21 @@ export class HomeComponent implements OnInit, AfterViewChecked {
         .subscribe((res: any) => {
           if (res.ResponseBody) {
             this.selectedFolder = {
-              FolderName: FolderName,
-              FullPath: Path
+              Name: FolderName,
+              Path: Path
             }
-            
-            this.isBackBtnEnable = false;
             this.fileDetail = res.ResponseBody;
-            this.fileDetail.forEach(x => {
-              x.IsLoading = false;
-            })
+            if (this.fileDetail.length > 0) {
+              this.isBackBtnEnable = true;
+              this.fileDetail.forEach(x => {
+                x.IsLoading = false;
+              })
+            }
+            else {
+              this.isBackBtnEnable = false;
+              this.fileDetail = [];
+            }
+
             let data = this.routeData.getData();
             if (data) {
               this.routeData.removeData();
@@ -268,5 +277,7 @@ interface GitHubContent {
   DownloadUrl: string,
   Type: string,
   GitUrl: string,
-  Path: string
+  Path: string,
+  Status: boolean,
+  FileType: string
 }
