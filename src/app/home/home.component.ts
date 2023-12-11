@@ -14,10 +14,13 @@ declare var $: any;
 export class HomeComponent implements OnInit, AfterViewChecked {
   isLoading: boolean = false;
   isReady: boolean = false;
-  folderDiscovery: FolderDiscover = {
-    Files: [],
-    Folders: [],
-    RootDirectory: ""
+  gitHubContent: GitHubContent = {
+    Name: "",
+    Url: "",
+    DownloadUrl: "",
+    Type: "",
+    GitUrl: "",
+    Path: ""
   };
   currentPath: string = "";
   command: string = null;
@@ -132,7 +135,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.loadData(this.folderDiscovery.RootDirectory);
+    this.loadData(this.gitHubContent.GitUrl);
     let data = this.routeData.getData();
     if (data) {
       this.getFileList(data.FullPath , data.FolderName);
@@ -144,10 +147,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
     this.isReady = false;
     this.http.post("FolderDiscovery/GetAllFolder", { TargetDirectory: directory }).subscribe((res: any) => {
       if (res.ResponseBody) {
-        this.folderDiscovery = res.ResponseBody;
+        this.gitHubContent = res.ResponseBody;
         this.allFolders = res.ResponseBody.Folders
         if (this.currentPath === "")
-          this.currentPath = this.folderDiscovery.RootDirectory;
+          this.currentPath = this.gitHubContent.GitUrl;
       }
 
       this.isLoading = false;
@@ -169,11 +172,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
               FolderName: FolderName,
               FullPath: FullPath
             }
-            if (!this.folderDiscovery.Folders.find(x => x.FolderName == FolderName)) {
-              this.isBackBtnEnable = true;
-            } else
-              this.isBackBtnEnable = false;
-
+            
+            this.isBackBtnEnable = false;
             this.fileDetail = res.ResponseBody;
             this.fileDetail.forEach(x => {
               x.IsLoading = false;
@@ -246,16 +246,10 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   searchFolder(e: any) {
     let value = e.target.value;
-    if (value && value != "") {
-      this.folderDiscovery.Folders = this.allFolders.filter(x => x.FolderName.includes(value));
-    } else {
-      this.folderDiscovery.Folders = this.allFolders;
-    }
   }
 
   resetSearch(e: any) {
     e.target.value = "";
-    this.folderDiscovery.Folders = this.allFolders;
   }
 
   loadFileEditor(file: any) {
@@ -272,8 +266,11 @@ enum Status {
   Warning = 4
 }
 
-interface FolderDiscover {
-  Folders: Array<any>,
-  Files: Array<any>,
-  RootDirectory: string
+interface GitHubContent {
+  Name: string,
+  Url: string,
+  DownloadUrl: string,
+  Type: string,
+  GitUrl: string,
+  Path: string
 }
