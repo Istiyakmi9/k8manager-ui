@@ -1,9 +1,9 @@
 import { AfterViewChecked, Component, OnInit } from '@angular/core';
-import 'bootstrap';
 import { AjaxService } from '../services/ajax.service';
 import { Subject, interval, switchMap, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import { RouteDatahandler } from '../services/RouteDatahandler';
+import 'bootstrap';
 declare var $: any;
 
 @Component({
@@ -49,36 +49,31 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   reRunFile(fileDetail: any) {
     if (fileDetail) {
-      this.isLoading = true;
       this.runAndRetryForStatus(fileDetail, "Action/ReRunFile");
     }
   }
 
   stopFile(fileDetail: any) {
     if (fileDetail) {
-      this.isLoading = true;
       this.runAndRetryForStatus(fileDetail, "Action/StopFile");
     }
   }
 
   checkStatus(fileDetail: any) {
     if (fileDetail) {
-      this.isLoading = true;
       this.runAndRetryForStatus(fileDetail, "Action/CheckStatus");
     }
   }
 
   runFile(fileDetail: any) {
     if (fileDetail) {
-      this.isLoading = true;
       this.runAndRetryForStatus(fileDetail, "Action/RunFile");
     }
   }
 
   runAndRetryForStatus(fileDetail: any, url: string): void {
-    const timer$ = interval(1000); // Adjust the interval as needed
+    const timer$ = interval(10000); // Adjust the interval as needed
     let counter = 0;
-    let i = 1;
     fileDetail.IsLoading = true;
     timer$
       .pipe(
@@ -95,24 +90,23 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       .subscribe((res: any) => {
         if (res && res.HttpStatusCode == 200) {
           let detail = res.ResponseBody;
-          console.log('Received data:', detail.Name);
-          fileDetail.IsLoading = false;
-          let currentFile = this.fileDetail.find(x => x.Name == detail.Name);
-          currentFile.Status = detail.Status;
-          this.isLoading = false;
+          if (detail.Name) {
+            console.log('Received data:', detail.Name);
+            fileDetail.IsLoading = false;
+            fileDetail.Status = detail.Status;
+            this.stopTimer();
+          }
         }
 
-        // Check if it's the 5th request, then stop the timer
         counter++;
-        this.stopTimer();
-        if (counter === 1 || res.HttpStatusCode == 200) {
+        // Check if it's the 5th request, then stop the timer
+        if (counter === 5 ) {
           fileDetail.IsLoading = false;
           this.stopTimer();
         }
       },
         (error) => {
           console.error('Error...');
-          this.isLoading = false;
           fileDetail.IsLoading = false;
           this.stopTimer();
         }
@@ -158,7 +152,6 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   getFileList(Path: string, FolderName: string) {
     if (Path && Path != "" && FolderName && FolderName != "") {
-      this.isLoading = true;
       this.http.post("FolderDiscovery/GetAllFile", { TargetDirectory: Path })
         .subscribe((res: any) => {
           if (res.ResponseBody) {
@@ -182,10 +175,8 @@ export class HomeComponent implements OnInit, AfterViewChecked {
             if (data) {
               this.routeData.removeData();
             }
-            this.isLoading = false;
           }
         }, (err) => {
-          this.isLoading = false;
           alert(err.message);
         })
     } else {
