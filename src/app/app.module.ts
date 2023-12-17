@@ -26,7 +26,7 @@ import { NavbarComponent } from './navbar/navbar.component';
     FormsModule
   ],
   providers: [
-    {provide: HTTP_INTERCEPTORS, useClass: AppInterceptor, multi: true}
+    //{provide: HTTP_INTERCEPTORS, useClass: AppInterceptor, multi: true}
   ],
   bootstrap: [AppComponent]
 })

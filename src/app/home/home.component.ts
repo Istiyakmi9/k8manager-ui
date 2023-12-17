@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
   command: string = null;
   cmdType: string = "linux";
   fileDetail: Array<any> = [];
+  folderDetail: Array<any> = [];
   allFolders: Array<GitHubContent> = [];
   selectedFolder: any = null;
   private destroy$ = new Subject<void>();
@@ -138,7 +139,6 @@ export class HomeComponent implements OnInit, AfterViewChecked {
       if (res.ResponseBody) {
         this.gitHubContent = res.ResponseBody;
         this.allFolders = res.ResponseBody;
-
       }
 
       this.isLoading = false;
@@ -152,6 +152,7 @@ export class HomeComponent implements OnInit, AfterViewChecked {
 
   getFileList(Path: string, FolderName: string) {
     if (Path && Path != "" && FolderName && FolderName != "") {
+      this.isLoading = true;
       this.http.post("FolderDiscovery/GetAllFile", { TargetDirectory: Path })
         .subscribe((res: any) => {
           if (res.ResponseBody) {
@@ -159,28 +160,34 @@ export class HomeComponent implements OnInit, AfterViewChecked {
               Name: FolderName,
               Path: Path
             }
-            this.fileDetail = res.ResponseBody;
-            if (this.fileDetail.length > 0) {
+            let result = res.ResponseBody;
+            this.fileDetail = [];
+            this.folderDetail = [];
+            if (result && result.length > 0) {
               this.isBackBtnEnable = true;
-              this.fileDetail.forEach(x => {
-                x.IsLoading = false;
+              result.forEach(x => {
+                if (x.Type == "dir") {
+                  this.folderDetail.push(x);
+                } else {
+                  x.IsLoading = false;
+                  this.fileDetail.push(x);
+                }
               })
             }
             else {
               this.isBackBtnEnable = false;
-              this.fileDetail = [];
             }
 
             let data = this.routeData.getData();
             if (data) {
               this.routeData.removeData();
             }
+            this.isLoading = false;
           }
         }, (err) => {
           alert(err.message);
+          this.isLoading = false;
         })
-    } else {
-
     }
   }
 
@@ -270,5 +277,6 @@ interface GitHubContent {
   GitUrl: string,
   Path: string,
   Status: boolean,
-  FileType: string
+  FileType: string,
+  IsYamlFile: boolean
 }
